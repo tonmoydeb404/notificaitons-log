@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, FlatList, StyleSheet, Text, View} from 'react-native';
 import NotificationService from './src/services/NotificationService';
+import './src/styles/global.css';
 import type {NotificationData} from './src/types';
 
 const App: React.FC = () => {
@@ -14,6 +15,8 @@ const App: React.FC = () => {
 
     const unsubscribe = NotificationService.addListener(
       (notification: NotificationData) => {
+        console.log(notification);
+
         setNotifications(prev => [notification, ...prev]);
       },
     );
