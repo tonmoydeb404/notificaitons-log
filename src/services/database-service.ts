@@ -292,7 +292,8 @@ class DatabaseService {
     }
   }
 
-  async clearOldNotifications(daysOld: number = 30): Promise<number> {
+  // Only clear VERY old notifications (like 6+ months) for storage management
+  async clearOldNotifications(daysOld: number = 180): Promise<number> {
     if (!this.db) throw new Error('Database not initialized');
 
     const cutoffDate = new Date();

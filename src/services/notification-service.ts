@@ -68,6 +68,7 @@ class NotificationService {
         this.subscription.remove();
       }
 
+      // Only listen for new notifications - ignore dismissals/removals
       this.subscription = DeviceEventEmitter.addListener(
         'NotificationReceived',
         this.handleNotificationReceived.bind(this),
@@ -107,13 +108,13 @@ class NotificationService {
         notification.title,
       );
 
-      // Save to database
+      // Always save to database - NEVER remove
       await DatabaseService.insertNotification(notification);
 
       // Add to local array
       this.notifications.unshift(notification);
 
-      // Keep only latest 500 notifications in memory
+      // Keep only latest 500 notifications in memory for performance
       if (this.notifications.length > 500) {
         this.notifications = this.notifications.slice(0, 500);
       }
@@ -176,6 +177,8 @@ class NotificationService {
     }
   }
 
+  // Only delete when user explicitly chooses to delete from YOUR app
+  // NOT when the original notification is dismissed/removed from system
   async deleteNotification(id: string): Promise<void> {
     try {
       await DatabaseService.deleteNotification(id);
@@ -184,6 +187,16 @@ class NotificationService {
       this.notifications = this.notifications.filter(n => n.id !== id);
     } catch (error) {
       console.error('Error deleting notification:', error);
+      throw error;
+    }
+  }
+
+  // Optional: Clean up very old notifications (like 6 months+)
+  async clearOldNotifications(daysOld: number = 180): Promise<number> {
+    try {
+      return await DatabaseService.clearOldNotifications(daysOld);
+    } catch (error) {
+      console.error('Error clearing old notifications:', error);
       throw error;
     }
   }
