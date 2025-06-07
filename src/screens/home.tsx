@@ -9,10 +9,7 @@ import {
 } from 'react-native';
 import {Header} from '../components/common/header';
 import {LoadingSpinner} from '../components/common/loading-spinner';
-import {DashboardCards} from '../components/dashboard/cards';
-import {StatsCard} from '../components/dashboard/stat-card';
 import {NotificationList} from '../components/notifications/list';
-import {SearchBar} from '../components/search/search-bar';
 import {useDatabase} from '../hooks/use-database';
 import {useNotifications} from '../hooks/use-notifications';
 import {useSearch} from '../hooks/use-search';
@@ -163,6 +160,12 @@ export const HomeScreen: React.FC = () => {
     }
   }, [requestPermission]);
 
+  // Handle settings press
+  const handleSettingsPress = useCallback(() => {
+    // TODO: Navigate to settings
+    Alert.alert('Settings', 'Settings screen coming soon!');
+  }, []);
+
   // Handle back button (Android)
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -232,54 +235,30 @@ export const HomeScreen: React.FC = () => {
     <View className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
 
-      {/* Header */}
+      {/* Fixed Header */}
       <Header
         title="Notification Tracker"
-        subtitle={`${stats.total} total notifications`}
-        onSettingsPress={() => {
-          // TODO: Navigate to settings
-          Alert.alert('Settings', 'Settings screen coming soon!');
-        }}
+        subtitle={`${stats?.total || 0} total notifications`}
+        onSettingsPress={handleSettingsPress}
       />
 
-      {/* Dashboard Cards */}
-      <DashboardCards stats={stats} onCardPress={handleCardPress} />
-
-      {/* Stats Card */}
-      <StatsCard
-        stats={stats}
-        onRefresh={handleRefresh}
-        onClearOld={handleClearOld}
-        onMarkAllAsRead={handleMarkAllAsRead}
-      />
-
-      {/* Search Bar */}
-      <SearchBar
-        onSearch={handleSearch}
-        uniqueApps={uniqueApps}
-        initialFilters={filters}
-      />
-
-      {/* Error Message */}
-      {error && (
-        <View className="mx-4 mb-2 p-3 bg-red-100 border border-red-200 rounded-lg">
-          <Text className="text-red-700 text-sm">{error}</Text>
-          <TouchableOpacity
-            onPress={() => setError(null)}
-            className="absolute right-2 top-2">
-            <Text className="text-red-500">✕</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Notifications List */}
+      {/* Notifications List with Dashboard in Header */}
       <NotificationList
         notifications={notifications}
         loading={notificationsLoading}
+        error={error}
+        stats={stats}
+        uniqueApps={uniqueApps}
+        filters={filters}
         onRefresh={handleRefresh}
         onNotificationPress={handleNotificationPress}
         onMarkAsRead={markAsRead}
         onDelete={handleDeleteNotification}
+        onSearch={handleSearch}
+        onCardPress={handleCardPress}
+        onClearOld={handleClearOld}
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onClearError={() => setError(null)}
       />
     </View>
   );
